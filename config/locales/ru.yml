@@ -1,0 +1,15 @@
+ru:
+  redmine_telegram_notifier:
+    settings:
+      bot_token: "Токен бота"
+      chat_id: "ID чата"
+      notify_on_create: "Уведомлять о создании задач"
+      notify_on_update: "Уведомлять об обновлении задач"
+      notify_status_change: "Уведомлять об изменении статуса"
+      notify_priority_change: "Уведомлять об изменении приоритета"
+      notify_assignee_change: "Уведомлять об изменении исполнителя"
+    messages:
+      test_success: "Тестовое сообщение отправлено в Telegram"
+      test_error: "Ошибка отправки сообщения. Проверьте настройки и логи."
+      created: "Создана новая задача"
+      updated: "Обновлена задача"

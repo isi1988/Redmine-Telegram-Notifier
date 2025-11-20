@@ -1,0 +1,15 @@
+en:
+  redmine_telegram_notifier:
+    settings:
+      bot_token: "Bot Token"
+      chat_id: "Chat ID"
+      notify_on_create: "Notify on issue creation"
+      notify_on_update: "Notify on issue updates"
+      notify_status_change: "Notify on status change"
+      notify_priority_change: "Notify on priority change"
+      notify_assignee_change: "Notify on assignee change"
+    messages:
+      test_success: "Test message sent to Telegram"
+      test_error: "Error sending message. Check settings and logs."
+      created: "New issue created"
+      updated: "Issue updated"

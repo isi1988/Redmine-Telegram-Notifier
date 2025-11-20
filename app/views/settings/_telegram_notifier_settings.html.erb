@@ -1,0 +1,104 @@
+<div class="box tabular settings">
+  <h3>Настройки Telegram Bot</h3>
+  
+  <p>
+    <label for="settings_bot_token">Bot Token:</label>
+    <%= text_field_tag 'settings[bot_token]', 
+                       @settings['bot_token'], 
+                       size: 60, 
+                       placeholder: '1234567890:ABCdefGHIjklMNOpqrsTUVwxyz' %>
+  </p>
+  
+  <p>
+    <label for="settings_chat_id">Chat ID:</label>
+    <%= text_field_tag 'settings[chat_id]', 
+                       @settings['chat_id'], 
+                       size: 30, 
+                       placeholder: '-1001234567890' %>
+  </p>
+  
+  <p class="description">
+    <strong>Как получить Bot Token и Chat ID:</strong><br>
+    1. Создайте бота через <a href="https://t.me/BotFather" target="_blank">@BotFather</a> и получите токен<br>
+    2. Добавьте бота в группу или канал<br>
+    3. Используйте <a href="https://t.me/getidsbot" target="_blank">@getidsbot</a> или отправьте сообщение боту и проверьте через API: 
+    <code>https://api.telegram.org/bot&lt;YOUR_BOT_TOKEN&gt;/getUpdates</code>
+  </p>
+  
+  <hr>
+  
+  <h3>Настройки уведомлений</h3>
+  
+  <p>
+    <%= check_box_tag 'settings[notify_on_create]', 
+                      '1', 
+                      @settings['notify_on_create'] == '1' %>
+    <%= label_tag 'settings_notify_on_create', 'Уведомлять о создании задач' %>
+  </p>
+  
+  <p>
+    <%= check_box_tag 'settings[notify_on_update]', 
+                      '1', 
+                      @settings['notify_on_update'] == '1' %>
+    <%= label_tag 'settings_notify_on_update', 'Уведомлять об обновлении задач' %>
+  </p>
+  
+  <p style="margin-left: 20px;">
+    <%= check_box_tag 'settings[notify_status_change]', 
+                      '1', 
+                      @settings['notify_status_change'] == '1' %>
+    <%= label_tag 'settings_notify_status_change', 'Уведомлять об изменении статуса' %>
+  </p>
+  
+  <p style="margin-left: 20px;">
+    <%= check_box_tag 'settings[notify_priority_change]', 
+                      '1', 
+                      @settings['notify_priority_change'] == '1' %>
+    <%= label_tag 'settings_notify_priority_change', 'Уведомлять об изменении приоритета' %>
+  </p>
+  
+  <p style="margin-left: 20px;">
+    <%= check_box_tag 'settings[notify_assignee_change]', 
+                      '1', 
+                      @settings['notify_assignee_change'] == '1' %>
+    <%= label_tag 'settings_notify_assignee_change', 'Уведомлять об изменении исполнителя' %>
+  </p>
+  
+  <hr>
+  
+  <h3>Тестирование</h3>
+  
+  <p>
+    <%= link_to 'Отправить тестовое сообщение', 
+                test_telegram_notification_path, 
+                method: :post, 
+                class: 'icon icon-test',
+                data: { confirm: 'Отправить тестовое сообщение в Telegram?' } %>
+  </p>
+  
+  <p class="description">
+    Нажмите кнопку, чтобы проверить корректность настроек
+  </p>
+</div>
+
+<style>
+  .settings p.description {
+    margin-left: 180px;
+    color: #666;
+    font-size: 0.9em;
+    margin-top: -10px;
+  }
+  
+  .settings code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+  
+  .settings hr {
+    margin: 20px 0;
+    border: none;
+    border-top: 1px solid #e0e0e0;
+  }
+</style>
