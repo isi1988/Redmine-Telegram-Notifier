@@ -1,0 +1,61 @@
+<div class="box tabular">
+  <h3>Telegram уведомления для проекта</h3>
+
+  <% if Setting.plugin_redmine_telegram_notifier['bot_token'].blank? %>
+    <p class="warning">
+      ⚠️ Telegram бот не настроен. Пожалуйста, настройте бота в
+      <%= link_to 'глобальных настройках плагина', plugin_settings_path(:redmine_telegram_notifier) %>.
+    </p>
+  <% else %>
+    <% current_project = @project || project %>
+    <% table_exists = defined?(ProjectTelegramChat) && ActiveRecord::Base.connection.table_exists?('project_telegram_chats') %>
+    <% chats = table_exists ? current_project.project_telegram_chats : [] %>
+
+    <% unless table_exists %>
+      <p class="warning">
+        ⚠️ Миграция базы данных не выполнена. Выполните команду:<br>
+        <code>bundle exec rake redmine:plugins:migrate NAME=redmine_telegram_notifier RAILS_ENV=production</code>
+      </p>
+    <% end %>
+
+    <% if table_exists %>
+      <p>
+        <%= label_tag 'project_telegram_chat[chat_id]', 'Chat ID для Telegram уведомлений:' %>
+        <%= text_field_tag 'project_telegram_chat[chat_id]', chats.first&.chat_id, placeholder: '-1001234567890', size: 30 %>
+        <em class="info">ID чата для отправки уведомлений по этому проекту. Сохраните настройки проекта после изменения.</em>
+      </p>
+    <% end %>
+
+    <p class="description">
+      <strong>Как получить Chat ID:</strong><br>
+      1. Добавьте бота в группу или канал<br>
+      2. Используйте <a href="https://t.me/getidsbot" target="_blank">@getidsbot</a> для получения ID чата<br>
+      3. Или отправьте сообщение в чат и проверьте через API:
+      <code>https://api.telegram.org/bot&lt;BOT_TOKEN&gt;/getUpdates</code>
+    </p>
+  <% end %>
+</div>
+
+<style>
+  .description {
+    margin-top: 15px;
+    color: #666;
+    font-size: 0.9em;
+  }
+
+  .description code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+
+  .warning {
+    padding: 10px;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 4px;
+    color: #856404;
+  }
+
+</style>

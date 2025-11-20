@@ -1,8 +1,8 @@
 Redmine::Plugin.register :redmine_telegram_notifier do
   name 'Redmine Telegram Notifier'
   author 'Sviatoslav Ivanov'
-  description 'Отправляет уведомления в Telegram при создании и изменении задач'
-  version '1.0.0'
+  description 'Отправляет уведомления в Telegram при создании и изменении задач. Поддерживает отдельные чаты для проектов и личные уведомления пользователям.'
+  version '2.0.0'
   url 'https://github.com/isi1988/Redmine-Telegram-Notifier.git'
   author_url 'https://github.com/isi1988'
 
@@ -23,4 +23,8 @@ end
 Rails.application.config.after_initialize do
   require_relative 'lib/redmine_telegram_notifier/telegram_service'
   require_relative 'lib/redmine_telegram_notifier/hooks'
+  require_relative 'lib/redmine_telegram_notifier/user_patch'
+  require_relative 'lib/redmine_telegram_notifier/project_patch'
+  require_relative 'lib/redmine_telegram_notifier/project_settings_hook'
+  require_relative 'lib/redmine_telegram_notifier/user_profile_hook'
 end

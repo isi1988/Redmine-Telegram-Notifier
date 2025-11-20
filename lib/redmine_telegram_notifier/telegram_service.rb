@@ -4,15 +4,15 @@ require 'uri'
 
 module RedmineTelegramNotifier
   class TelegramService
-    def self.send_message(text)
+    # Отправка сообщения в конкретный чат (или пользователю)
+    def self.send_message_to_chat(text, chat_id)
       bot_token = Setting.plugin_redmine_telegram_notifier['bot_token']
-      chat_id = Setting.plugin_redmine_telegram_notifier['chat_id']
 
       return false if bot_token.blank? || chat_id.blank?
 
       begin
         uri = URI("https://api.telegram.org/bot#{bot_token}/sendMessage")
-        
+
         http = Net::HTTP.new(uri.host, uri.port)
         http.use_ssl = true
         http.open_timeout = 5
@@ -20,7 +20,7 @@ module RedmineTelegramNotifier
 
         request = Net::HTTP::Post.new(uri)
         request['Content-Type'] = 'application/json'
-        
+
         request.body = {
           chat_id: chat_id,
           text: text,
@@ -29,18 +29,49 @@ module RedmineTelegramNotifier
         }.to_json
 
         response = http.request(request)
-        
+
         if response.code.to_i == 200
-          Rails.logger.info "Telegram notification sent successfully"
+          Rails.logger.info "Telegram notification sent successfully to #{chat_id}"
           true
         else
-          Rails.logger.error "Failed to send Telegram notification: #{response.body}"
+          Rails.logger.error "Failed to send Telegram notification to #{chat_id}: #{response.body}"
           false
         end
       rescue => e
-        Rails.logger.error "Error sending Telegram notification: #{e.message}"
+        Rails.logger.error "Error sending Telegram notification to #{chat_id}: #{e.message}"
         false
       end
+    end
+
+    # Отправка в глобальный чат (для обратной совместимости)
+    def self.send_message(text)
+      chat_id = Setting.plugin_redmine_telegram_notifier['chat_id']
+      send_message_to_chat(text, chat_id)
+    end
+
+    # Отправка уведомления для issue
+    def self.send_issue_notification(issue, text)
+      results = []
+
+      # Отправляем в чат проекта, если он настроен
+      project_chat_id = ProjectTelegramChat.chat_id_for_project(issue.project_id)
+      if project_chat_id.present?
+        results << send_message_to_chat(text, project_chat_id)
+      else
+        # Иначе отправляем в глобальный чат (если настроен)
+        global_chat_id = Setting.plugin_redmine_telegram_notifier['chat_id']
+        results << send_message_to_chat(text, global_chat_id) if global_chat_id.present?
+      end
+
+      # Отправляем личное уведомление назначенному пользователю
+      if issue.assigned_to.present? &&
+         User.column_names.include?('telegram_user_id') &&
+         issue.assigned_to.telegram_user_id.present?
+        personal_message = "🔔 <b>Вам назначена задача</b>\n\n" + text
+        results << send_message_to_chat(personal_message, issue.assigned_to.telegram_user_id)
+      end
+
+      results.any?
     end
 
     def self.format_issue_message(issue, action)
