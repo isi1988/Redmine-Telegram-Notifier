@@ -4,6 +4,30 @@ require 'uri'
 
 module RedmineTelegramNotifier
   class TelegramService
+    # Нормализация username (убираем @ если есть)
+    def self.normalize_telegram_username(username)
+      return nil if username.blank?
+      username.to_s.strip.sub(/^@/, '')
+    end
+
+    # Отправка сообщения пользователю по username
+    def self.send_message_to_username(text, username)
+      # Telegram API не поддерживает отправку по username напрямую
+      # Нужно сначала получить chat_id пользователя через username
+      # Для этого пользователь должен хотя бы раз написать боту
+      bot_token = Setting.plugin_redmine_telegram_notifier['bot_token']
+      return false if bot_token.blank? || username.blank?
+
+      begin
+        # Пробуем отправить через @username
+        chat_id = "@#{normalize_telegram_username(username)}"
+        send_message_to_chat(text, chat_id)
+      rescue => e
+        Rails.logger.error "Error sending Telegram notification to username #{username}: #{e.message}"
+        false
+      end
+    end
+
     # Отправка сообщения в конкретный чат (или пользователю)
     def self.send_message_to_chat(text, chat_id)
       bot_token = Setting.plugin_redmine_telegram_notifier['bot_token']
@@ -64,11 +88,17 @@ module RedmineTelegramNotifier
       end
 
       # Отправляем личное уведомление назначенному пользователю
-      if issue.assigned_to.present? &&
-         User.column_names.include?('telegram_user_id') &&
-         issue.assigned_to.telegram_user_id.present?
+      if issue.assigned_to.present?
         personal_message = "🔔 <b>Вам назначена задача</b>\n\n" + text
-        results << send_message_to_chat(personal_message, issue.assigned_to.telegram_user_id)
+
+        # Пробуем отправить по telegram_user_id
+        if User.column_names.include?('telegram_user_id') && issue.assigned_to.telegram_user_id.present?
+          results << send_message_to_chat(personal_message, issue.assigned_to.telegram_user_id)
+        # Если нет user_id, пробуем отправить по telegram_username
+        elsif User.column_names.include?('telegram_username') && issue.assigned_to.telegram_username.present?
+          username = normalize_telegram_username(issue.assigned_to.telegram_username)
+          results << send_message_to_username(personal_message, username)
+        end
       end
 
       results.any?

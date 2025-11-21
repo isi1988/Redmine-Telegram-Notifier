@@ -27,4 +27,5 @@ Rails.application.config.after_initialize do
   require_relative 'lib/redmine_telegram_notifier/project_patch'
   require_relative 'lib/redmine_telegram_notifier/project_settings_hook'
   require_relative 'lib/redmine_telegram_notifier/user_profile_hook'
+  require_relative 'lib/redmine_telegram_notifier/projects_controller_patch'
 end

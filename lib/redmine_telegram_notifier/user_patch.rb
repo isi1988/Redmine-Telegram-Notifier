@@ -2,7 +2,7 @@ module RedmineTelegramNotifier
   module UserPatch
     def self.included(base)
       base.class_eval do
-        safe_attributes 'telegram_user_id'
+        safe_attributes 'telegram_user_id', 'telegram_username'
       end
     end
   end
