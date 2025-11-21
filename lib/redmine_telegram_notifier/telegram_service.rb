@@ -124,7 +124,13 @@ module RedmineTelegramNotifier
       message << "🎯 <b>Приоритет:</b> #{issue.priority.name}"
       
       if issue.assigned_to.present?
-        message << "👷 <b>Назначена:</b> #{issue.assigned_to.name}"
+        assigned_name = issue.assigned_to.name
+        # Добавляем упоминание пользователя, если указан telegram_username
+        if User.column_names.include?('telegram_username') && issue.assigned_to.telegram_username.present?
+          username = normalize_telegram_username(issue.assigned_to.telegram_username)
+          assigned_name = "#{issue.assigned_to.name} (@#{username})"
+        end
+        message << "👷 <b>Назначена:</b> #{assigned_name}"
       end
       
       if issue.project.present?
